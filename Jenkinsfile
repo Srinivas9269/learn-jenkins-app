@@ -6,33 +6,30 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
-                    args '-u root:root'   // run as root to avoid UID mismatch
                     reuseNode true
                 }
             }
             steps {
                 sh '''
-                    # install build dependencies
+                    # Install dependencies needed to build native modules
                     apk add --no-cache python3 make g++ bash
 
-                    # make sure npm cache is inside the workspace
-                    mkdir -p $WORKSPACE/.npm-cache
-                    mkdir -p $WORKSPACE/.npm-tmp
-                    npm config set cache $WORKSPACE/.npm-cache --global
-                    npm config set tmp $WORKSPACE/.npm-tmp --global
+                    # Clean previous build
+                    rm -rf node_modules .npm-cache
 
-                    echo "=== Environment Check ==="
-                    pwd
-                    ls -la
+                    # Use workspace-local npm cache (avoids permissions issues)
+                    mkdir -p $WORKSPACE/.npm-cache
+
+                    # Show versions and info
                     node --version
                     npm --version
-                    npm config list
+                    npm config set cache $WORKSPACE/.npm-cache
 
-                    echo "=== Install & Build ==="
+                    # Install dependencies and build
                     npm ci
                     npm run build
 
-                    echo "=== Post Build Files ==="
+                    # List files after build
                     ls -la
                 '''
             }
