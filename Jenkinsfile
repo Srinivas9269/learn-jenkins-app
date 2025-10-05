@@ -82,6 +82,8 @@ pipeline {
             }
             steps {
                 sh '''
+                    mkdir -p .npm-cache
+                    npm config set cache $(pwd)/.npm-cache
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
                 '''
