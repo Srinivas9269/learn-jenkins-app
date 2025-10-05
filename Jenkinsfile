@@ -77,13 +77,12 @@ pipeline {
             agent {
                 docker {
                     image 'node:18-alpine'
+                    args '-u root:root'
                     reuseNode true
                 }
             }
             steps {
                 sh '''
-                    mkdir -p .npm-cache
-                    npm config set cache $(pwd)/.npm-cache
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
                 '''
